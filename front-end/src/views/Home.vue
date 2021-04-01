@@ -1,17 +1,18 @@
 <template>
   <div class="home">
-    <hello-world/>
+    <import-excel/>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+// import HelloWorld from '@/components/HelloWorld.vue'
+import ImportExcel from '@/components/ImportExcel'
 
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    ImportExcel
   }
 }
 </script>

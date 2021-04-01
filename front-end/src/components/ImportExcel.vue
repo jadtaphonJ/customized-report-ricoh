@@ -1,6 +1,7 @@
 <template>
   <div>
-    <p>import excel</p>
+    <h3>Import XLSX</h3>
+    <input type="file" @change="onChange" />
   </div>
 </template>
 
