@@ -1,8 +1,15 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+  <v-app>
+    <v-content>
+      <router-view/>
+      <!-- <img src="assets/image/Uploading-pana@3x.png" alt=""> -->
+    </v-content>
+  </v-app>
 </template>
 
-<style scoped lang="scss">
-</style>
+<script>
+
+export default {
+  name: 'App'
+}
+</script>

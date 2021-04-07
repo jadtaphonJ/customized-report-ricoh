@@ -1,8 +1,27 @@
 <template>
   <div>
-    <h3>Import XLSX</h3>
-    <input type="file" @change="onChange" />
-    <button type="button" @click="exportExcel()">Export</button>
+    <v-card class="content-container">
+      <div class="import-container">
+      <v-row>
+        <div class="col-12">
+          File should be .CSV
+        </div>
+        <div class="col-6">
+          <input type="file" @change="onChange" />
+        </div>
+        <div class="col-6">
+          <v-btn
+            @click="exportExcel()"
+            outlined
+            class="mr-2"
+            width="180"
+            color="primary">
+            Export
+          </v-btn>
+        </div>
+      </v-row>
+      </div>
+    </v-card>
   </div>
 </template>
 
@@ -15,7 +34,18 @@ export default {
     return {
       headerFile: ['Person ID', 'Name', 'Department', 'Date', 'Check-in', 'TemperatureIn', 'Check-out', 'TemperatureOut', 'Abnormal'],
       dateKey: [],
-      data: []
+      data: [],
+      wscols: [
+        { wch: 15 }, // Person ID
+        { wch: 20 }, // Name
+        { wch: 20 }, // Department
+        { wch: 15 }, // Date
+        { wch: 10 }, // Check-in
+        { wch: 15 }, // TemperatureIn
+        { wch: 10 }, // Check-out
+        { wch: 15 }, // TemperatureOut
+        { wch: 10 } // Abnormal
+      ]
     }
   },
 
@@ -44,10 +74,21 @@ export default {
       reader.readAsArrayBuffer(file)
     },
 
+    convertTimeToStr (hour, minute) {
+      if (hour < 10) {
+        hour = `0${hour}`
+      }
+      if (minute < 10) {
+        minute = `0${minute}`
+      }
+
+      return `${hour}:${minute}`
+    },
+
     groupData (dataRead) {
       const row = this.convertDateTime(dataRead)
       const date = `${row[3].d}/${row[3].m}/${row[3].y}`
-      const time = `${row[3].H}:${row[3].M}:${row[3].S}`
+      const time = this.convertTimeToStr(row[3].H, row[3].M)
       const empKey = row[1]
 
       if (!this.data[empKey]) {
@@ -59,7 +100,7 @@ export default {
 
       if (!this.data[empKey][date]) {
         this.data[empKey][date] = {
-          'Person ID': row[0],
+          'Person ID': row[0].slice(1),
           Name: row[1],
           Department: row[2],
           Date: date,
@@ -92,22 +133,51 @@ export default {
           }
         }
       }
-
       return dataFormat
     },
 
-    exportExcel () {
-      const data = this.formatData(this.data)
+    async exportExcel () {
+      // const requestOptions = {
+      //   method: 'GET',
+      //   headers: { 'Content-Type': 'application/json' }
+      // }
+      // body: JSON.stringify({ title: "Vue POST Request Example" })
+      // const data = this.formatData(this.data)
+      const response = await fetch('http://localhost:3548/get-report')
+      const data = await response.json()
+      console.log(data)
       /* convert state to workbook */
-      const ws = XLSX.utils.json_to_sheet(data, { header: this.headerFile })
-      const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'SheetJS')
-      // /* generate file and send to client */
-      XLSX.writeFile(wb, 'report.xlsx')
+      // const ws = XLSX.utils.json_to_sheet(data, { header: this.headerFile })
+      // ws['!cols'] = this.wscols
+      // const wb = XLSX.utils.book_new()
+      // XLSX.utils.book_append_sheet(wb, ws, 'SheetJS')
+      // // /* generate file and send to client */
+      // XLSX.writeFile(wb, 'report.xlsx', { bookSST: true })
     }
   }
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.import-container {
+    padding: 3.7rem;
+}
+.content-container {
+  box-shadow: 0 5px 25px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 15px !important;
+  .v-data-table__wrapper {
+    border-radius: 15px 15px 0px 0px !important;
+    thead.v-data-table-header {
+      background-color: #6c6c6c;
+      span, i {
+          font-weight: normal;
+          font-size: 15px !important;
+          color: white !important;
+      }
+      i {
+          padding: 5px;
+      }
+    }
+  }
+}
 </style>
